@@ -1,6 +1,8 @@
 export const DEFAULT_DELIMITER: string = '.';
 export const ESCAPE_CHARACTER = '\\';
 
+
+/* test */
 /**
  * A name is a sequence of string components separated by a delimiter character.
  * Special characters within the string may need masking, if they are to appear verbatim.

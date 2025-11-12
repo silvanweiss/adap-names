@@ -4,7 +4,7 @@ export const ESCAPE_CHARACTER = '\\';
 export interface Printable {
 
    /**
-     * Returns a human-readable representation of the Name instance using user-set special characters
+     * Returns a human-readable representation of the Name instance using user-set special characters.
      * Special characters are not escaped (creating a human-readable string)
      * Users can vary the delimiter character to be used
      * The delimiter character must be a single character

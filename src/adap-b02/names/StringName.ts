@@ -10,50 +10,89 @@ export class StringName implements Name {
 
     constructor(source: string, delimiter?: string) {
         this.delimiter = delimiter ?? DEFAULT_DELIMITER;
-        this.name += source.replaceAll(this.delimiter, DEFAULT_DELIMITER); //TODO mask before ?
+        this.name += this.asStringArray(source, this.delimiter).join(DEFAULT_DELIMITER);
         this.noComponents = this.asStringArray(this.name).length;
     }
 
     public asString(delimiter: string = this.delimiter): string {
-        const maskedDelimiter: string = ESCAPE_CHARACTER + DEFAULT_DELIMITER;
-        //const maskedEscapeCharacter: string = ESCAPE_CHARACTER + ESCAPE_CHARACTER;
-
-        return this.name.replaceAll(maskedDelimiter, delimiter);
-            //.replaceAll(maskedEscapeCharacter, ESCAPE_CHARACTER); // TODO: brauch ich masked escape character überhaut?
+        return this.asUnmaskedStringName(this.asStringArray(this.name).join(delimiter));
     }
 
-    public asDataString(): string {
-        return this.name;
-    }
-
+    // this thing is so complex because it should handle non default masked delimiter like "#" and the masked "\\#"
     private asStringArray(other: string, delimiter: string = DEFAULT_DELIMITER): string[] {
         const nameArray: string[] = [];
 
-        let component: string = "";
-        let counter: number = 0;
+        // Mask the default delimiter so no information is lost when switching delimiter
+        if (delimiter !== DEFAULT_DELIMITER) {
+            other = other.replaceAll(DEFAULT_DELIMITER, ESCAPE_CHARACTER + DEFAULT_DELIMITER);
+        }
 
+        let component: string = "";
+        let escapedCounter: number = 0;
+
+        // Count the escape characters to determine if delimiter is masked or not
         for (let i: number = 0; i < other.length; i++) {
             const char: string = other[i];
 
             switch (char) {
                 case delimiter:
-                    if (counter % 2 === 0) {
+                    // unmasked delimiter found (".") -> split
+                    if (escapedCounter === 0) {
                         nameArray.push(component);
+                        console.log(component);
                         component = "";
-                        counter = 0;
-                        continue;
+                    // masked delimiter found ("\\.") -> add it to component
+                    } else {
+                        escapedCounter = 0;
+
+                        // remove masking from none default delimiters "\\#" -> "#"
+                        if (delimiter === DEFAULT_DELIMITER) {
+                            component += ESCAPE_CHARACTER + DEFAULT_DELIMITER;
+                        } else {
+                            component += delimiter;
+                        }
                     }
                     break;
 
                 case ESCAPE_CHARACTER:
-                    counter++;
+                    escapedCounter += 1;
+
+                    // masked escape character found ("\\\\") -> reset counter
+                    if (escapedCounter === 2) {
+                        escapedCounter = 0;
+                        component += ESCAPE_CHARACTER + ESCAPE_CHARACTER;
+                    }
                     break;
+
+                default:
+                    // "normal" character found -> reset counter
+                    if (escapedCounter === 1) {
+                        escapedCounter = 0;
+                        component += ESCAPE_CHARACTER + char;
+                    } else {
+                        component += char;
+                    }
             }
-            component += char;
         }
 
+        // add rest as new component
         nameArray.push(component);
+
         return nameArray;
+    }
+
+    // remove masking: "\\." -> "." and "\\\\" -> "\\"
+    private asUnmaskedStringName(other: string, delimiter: string = DEFAULT_DELIMITER) : string {
+        const maskedDelimiter: string = ESCAPE_CHARACTER + delimiter;
+        const maskedEscapeCharacter: string = ESCAPE_CHARACTER + ESCAPE_CHARACTER;
+
+        return other
+            .replaceAll(maskedDelimiter, delimiter)
+            .replaceAll(maskedEscapeCharacter, ESCAPE_CHARACTER);
+    }
+
+    public asDataString(): string {
+        return this.name;
     }
 
     public getDelimiterCharacter(): string {
@@ -73,13 +112,13 @@ export class StringName implements Name {
     }
 
     public setComponent(n: number, c: string): void {
-        const newName: StringArrayName = new StringArrayName(this.asStringArray(this.name));
+        const newName: Name = new StringArrayName(this.asStringArray(this.name));
         newName.setComponent(n, c);
         this.name = newName.asDataString();
     }
 
     public insert(n: number, c: string): void {
-        const newName: StringArrayName = new StringArrayName(this.asStringArray(this.name));
+        const newName: Name = new StringArrayName(this.asStringArray(this.name));
         newName.insert(n, c);
         this.name = newName.asDataString();
         this.noComponents++;
@@ -91,7 +130,7 @@ export class StringName implements Name {
     }
 
     public remove(n: number): void {
-        const newName: StringArrayName = new StringArrayName(this.asStringArray(this.name));
+        const newName: Name = new StringArrayName(this.asStringArray(this.name));
         newName.remove(n);
         this.name = newName.asDataString();
         this.noComponents--;

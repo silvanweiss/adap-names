@@ -43,7 +43,9 @@ describe("Basic StringArrayName function tests", () => {
 describe("Delimiter function tests", () => {
   it("test insert", () => {
     let n: Name = new StringName("oss#fau#de", '#');
+    expect(n.asDataString()).toBe("oss.fau.de");
     n.insert(1, "cs");
+    expect(n.asDataString()).toBe("oss.cs.fau.de");
     expect(n.asString()).toBe("oss#cs#fau#de");
   });
 });
@@ -61,9 +63,28 @@ describe("Escape character extravaganza", () => {
 describe("Escape character extravaganza", () => {
     it("test escape and delimiter boundary conditions", () => {
         let n: Name = new StringName("oss\\.cs\\.fau.de", '.');
-        expect(n.getNoComponents()).toBe(1);
-        expect(n.asString()).toBe("oss.cs.fau#de");
+        expect(n.getNoComponents()).toBe(2);
+        expect(n.asString("#")).toBe("oss.cs.fau#de");
         n.append("people");
         expect(n.asString("#")).toBe("oss.cs.fau#de#people");
+    });
+});
+
+describe("Custom: Non default delimiter masking", () => {
+    it("test handling of non default delimiters, masked and unmasked", () => {
+        // Original name string = "oss.cs.fau.de"
+        let n: Name = new StringName("oss.cs.fau\\#de", '#');
+        expect(n.asString()).toBe("oss.cs.fau#de");
+        n.append("people");
+        expect(n.asString()).toBe("oss.cs.fau#de#people");
+    });
+
+    it("test handling of non default delimiters, masked and unmasked and unmasked default delimiter", () => {
+        // Original name string = "oss.cs.fau.de"
+        let n: Name = new StringName("oss.cs.fau\\#de", '#');
+        expect(n.asDataString()).toBe("oss\\.cs\\.fau#de");
+        expect(n.asString()).toBe("oss.cs.fau#de");
+        n.append("people");
+        expect(n.asString(".")).toBe("oss.cs.fau#de.people");
     });
 });

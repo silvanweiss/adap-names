@@ -1,6 +1,5 @@
 import {DEFAULT_DELIMITER, ESCAPE_CHARACTER} from "../common/Printable";
 import {Name} from "./Name";
-import {StringName} from "./StringName";
 
 export class StringArrayName implements Name {
 
@@ -19,18 +18,19 @@ export class StringArrayName implements Name {
         let unmaskedComponents: string[] = [];
 
         this.components.forEach(component =>
-            unmaskedComponents.push(this.asUnmaskComponent(component, delimiter))
+            unmaskedComponents.push(this.asUnmaskedComponent(component))
         );
 
         return unmaskedComponents.join(delimiter);
     }
 
-    private asUnmaskComponent(component: string, delimiter: string = this.delimiter) : string {
-        const maskedDelimiter: string = ESCAPE_CHARACTER + DEFAULT_DELIMITER; // TODO: Oder ESCAPE_CHARACTER + delimiter ?
-        //const maskedEscapeCharacter: string = ESCAPE_CHARACTER + ESCAPE_CHARACTER;
+    private asUnmaskedComponent(component: string) : string {
+        const maskedDelimiter: string = ESCAPE_CHARACTER + DEFAULT_DELIMITER;
+        const maskedEscapeCharacter: string = ESCAPE_CHARACTER + ESCAPE_CHARACTER;
 
-        return component.replaceAll(maskedDelimiter, delimiter);
-            //.replaceAll(maskedEscapeCharacter, ESCAPE_CHARACTER); // TODO: brauch ich masked escape character überhaut?
+        return component
+            .replaceAll(maskedDelimiter, DEFAULT_DELIMITER)
+            .replaceAll(maskedEscapeCharacter, ESCAPE_CHARACTER);
     }
 
     public asDataString(): string {

@@ -58,11 +58,32 @@ describe("Escape character extravaganza", () => {
     n.append("people");
     expect(n.asString()).toBe("oss.cs.fau.de#people");
   });
+
 });
 
 describe("Escape character extravaganza", () => {
     it("test escape and delimiter boundary conditions", () => {
         let n: Name = new StringName("oss\\.cs\\.fau.de", '.');
+        expect(n.getNoComponents()).toBe(2);
+        expect(n.asString("#")).toBe("oss.cs.fau#de");
+        n.append("people");
+        expect(n.asString("#")).toBe("oss.cs.fau#de#people");
+    });
+});
+
+describe("Custom: Extensive masking test", () => {
+    it("test masking and unmasking with additional escape characters", () => {
+        let n: Name = new StringName("oss\\\\.cs\\\\\\#fau\\\\#de", '#');
+        expect(n.getNoComponents()).toBe(2);
+        expect(n.asString("*")).toBe("oss\\.cs\\#fau\\*de");
+        n.append("people");
+        expect(n.asString("*")).toBe("oss\\.cs\\#fau\\*de*people");
+        expect(n.asDataString()).toBe("oss\\\\\\.cs\\\\#fau\\\\.de.people");
+    });
+
+    // TODO
+    it("test escape character as delimiter", () => {
+        let n: Name = new StringName("oss\\.cs\\.fau.de", '\\');
         expect(n.getNoComponents()).toBe(2);
         expect(n.asString("#")).toBe("oss.cs.fau#de");
         n.append("people");

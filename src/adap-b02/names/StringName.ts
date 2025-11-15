@@ -14,6 +14,7 @@ export class StringName implements Name {
         this.noComponents = this.asStringArray(this.name).length;
     }
 
+    // unmask all special characters and replace delimiter
     public asString(delimiter: string = this.delimiter): string {
         return this.asUnmaskedStringName(this.asStringArray(this.name).join(delimiter));
     }
@@ -22,9 +23,14 @@ export class StringName implements Name {
     private asStringArray(other: string, delimiter: string = DEFAULT_DELIMITER): string[] {
         const nameArray: string[] = [];
 
+        // TODO make that after the splitting
         // Mask the default delimiter so no information is lost when switching delimiter
-        if (delimiter !== DEFAULT_DELIMITER) {
-            other = other.replaceAll(DEFAULT_DELIMITER, ESCAPE_CHARACTER + DEFAULT_DELIMITER);
+        function push(component: string) : void {
+            if (delimiter !== DEFAULT_DELIMITER) {
+                nameArray.push(component.replaceAll(DEFAULT_DELIMITER, ESCAPE_CHARACTER + DEFAULT_DELIMITER));
+            } else {
+                nameArray.push(component);
+            }
         }
 
         let component: string = "";
@@ -35,11 +41,10 @@ export class StringName implements Name {
             const char: string = other[i];
 
             switch (char) {
-                case delimiter:
+                case delimiter: {
                     // unmasked delimiter found (".") -> split
                     if (escapedCounter === 0) {
-                        nameArray.push(component);
-                        console.log(component);
+                        push(component);
                         component = "";
                     // masked delimiter found ("\\.") -> add it to component
                     } else {
@@ -53,8 +58,9 @@ export class StringName implements Name {
                         }
                     }
                     break;
+                }
 
-                case ESCAPE_CHARACTER:
+                case ESCAPE_CHARACTER: {
                     escapedCounter += 1;
 
                     // masked escape character found ("\\\\") -> reset counter
@@ -63,20 +69,24 @@ export class StringName implements Name {
                         component += ESCAPE_CHARACTER + ESCAPE_CHARACTER;
                     }
                     break;
+                }
 
-                default:
-                    // "normal" character found -> reset counter
+                default: {
+                    // "normal" character or DEFAULT_DELIMITER found -> reset counter
+                    // This should only happen if delimiter !== DEFAULT_DELIMITER as DEFAULT_DELIMITER gets masked.
+                    // TODO this should no langer happen as default delimter gets masked after splitting
                     if (escapedCounter === 1) {
                         escapedCounter = 0;
                         component += ESCAPE_CHARACTER + char;
                     } else {
                         component += char;
                     }
+                }
             }
         }
 
         // add rest as new component
-        nameArray.push(component);
+        push(component);
 
         return nameArray;
     }

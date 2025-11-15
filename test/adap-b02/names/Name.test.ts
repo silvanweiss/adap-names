@@ -81,13 +81,14 @@ describe("Custom: Extensive masking test", () => {
         expect(n.asDataString()).toBe("oss\\\\\\.cs\\\\#fau\\\\.de.people");
     });
 
-    // TODO
-    it("test escape character as delimiter", () => {
-        let n: Name = new StringName("oss\\.cs\\.fau.de", '\\');
-        expect(n.getNoComponents()).toBe(2);
-        expect(n.asString("#")).toBe("oss.cs.fau#de");
+    it("Custom: test escape character as delimiter", () => {
+        let n: Name = new StringName("oss\\\\.cs\\.fau.de", '\\');
+        expect(n.getNoComponents()).toBe(4);
+        expect(n.asString("#")).toBe("oss##.cs#.fau.de");
+        expect(n.asString(".")).toBe("oss...cs..fau.de");
+        expect(n.asDataString()).toBe("oss..\\.cs.\\.fau\\.de");
         n.append("people");
-        expect(n.asString("#")).toBe("oss.cs.fau#de#people");
+        expect(n.asString("#")).toBe("oss##.cs#.fau.de#people");
     });
 });
 

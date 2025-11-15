@@ -23,14 +23,9 @@ export class StringName implements Name {
     private asStringArray(other: string, delimiter: string = DEFAULT_DELIMITER): string[] {
         const nameArray: string[] = [];
 
-        // TODO make that after the splitting
-        // Mask the default delimiter so no information is lost when switching delimiter
+        // Remask the default delimiter so no information is lost when switching delimiter
         function push(component: string) : void {
-            if (delimiter !== DEFAULT_DELIMITER) {
-                nameArray.push(component.replaceAll(DEFAULT_DELIMITER, ESCAPE_CHARACTER + DEFAULT_DELIMITER));
-            } else {
-                nameArray.push(component);
-            }
+            nameArray.push(component.replaceAll(DEFAULT_DELIMITER, ESCAPE_CHARACTER + DEFAULT_DELIMITER));
         }
 
         let component: string = "";
@@ -50,12 +45,8 @@ export class StringName implements Name {
                     } else {
                         escapedCounter = 0;
 
-                        // remove masking from none default delimiters "\\#" -> "#"
-                        if (delimiter === DEFAULT_DELIMITER) {
-                            component += ESCAPE_CHARACTER + DEFAULT_DELIMITER;
-                        } else {
-                            component += delimiter;
-                        }
+                        // remove masking from all delimiters "\\#" -> "#" and "\\." -> "."
+                        component += delimiter;
                     }
                     break;
                 }
@@ -73,8 +64,7 @@ export class StringName implements Name {
 
                 default: {
                     // "normal" character or DEFAULT_DELIMITER found -> reset counter
-                    // This should only happen if delimiter !== DEFAULT_DELIMITER as DEFAULT_DELIMITER gets masked.
-                    // TODO this should no langer happen as default delimter gets masked after splitting
+                    // !!! This should not happen !!! -> INPUT NOT CORRECTLY MASKED
                     if (escapedCounter === 1) {
                         escapedCounter = 0;
                         component += ESCAPE_CHARACTER + char;
@@ -121,12 +111,14 @@ export class StringName implements Name {
         return this.asStringArray(this.name)[x];
     }
 
+    // TODO: how is the new string masked, only the escape char, the default delimiter or the current delimiter?
     public setComponent(n: number, c: string): void {
         const newName: Name = new StringArrayName(this.asStringArray(this.name));
         newName.setComponent(n, c);
         this.name = newName.asDataString();
     }
 
+    // TODO: how is the new string masked, only the escape char, the default delimiter or the current delimiter?
     public insert(n: number, c: string): void {
         const newName: Name = new StringArrayName(this.asStringArray(this.name));
         newName.insert(n, c);
@@ -134,6 +126,7 @@ export class StringName implements Name {
         this.noComponents++;
     }
 
+    // TODO: how is the new string masked, only the escape char, the default delimiter or the current delimiter?
     public append(c: string): void {
         this.name += DEFAULT_DELIMITER + c;
         this.noComponents++;

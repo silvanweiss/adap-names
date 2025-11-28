@@ -1,5 +1,7 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
+import {MethodFailedException} from "../common/MethodFailedException";
+import {IllegalArgumentException} from "../common/IllegalArgumentException";
 
 export abstract class AbstractName implements Name {
 
@@ -7,6 +9,7 @@ export abstract class AbstractName implements Name {
 
     protected constructor(delimiter: string = DEFAULT_DELIMITER) {
         this.delimiter = delimiter;
+        MethodFailedException.assert(this.getDelimiterCharacter() === delimiter);
     }
 
     public clone(): Name {
@@ -84,15 +87,33 @@ export abstract class AbstractName implements Name {
     abstract setComponent(i: number, c: string): void;
 
     abstract insert(i: number, c: string): void;
+    // insert at last index
     abstract append(c: string): void;
     abstract remove(i: number): void;
 
     public concat(other: Name): void {
-        const length: number = this.getNoComponents();
+        const thisLength: number = this.getNoComponents();
+        const otherLength: number = other.getNoComponents();
 
-        for (let i: number = 0; i < length; i++) {
-            this.append(other.getComponent(i));
+        for (let i: number = 0; i < otherLength; i++) {
+            const newComponent: string = other.getComponent(i)
+            //IllegalArgumentException.assert(this.isValidComponent(newComponent))
+            this.append(newComponent);
         }
+
+        MethodFailedException.assert(this.getNoComponents() === thisLength + otherLength);
+    }
+
+    protected isValidIndex(i: number): boolean {
+        return i >= 0 && i < this.getNoComponents();
+    }
+
+    protected isValidComponent(c: string): boolean {
+        return true;
+    }
+
+    protected isValidName(n: string): boolean {
+        return true;
     }
 
 }

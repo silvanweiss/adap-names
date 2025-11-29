@@ -11,7 +11,12 @@ export class StringArrayName extends AbstractName {
 
     constructor(source: string[], delimiter?: string) {
         super(delimiter);
-        this.components = source;
+
+        source.forEach(component =>
+            this.append(component)
+        )
+
+        MethodFailedException.assert(this.components === source);
     }
 
     public clone(): Name {
@@ -21,7 +26,7 @@ export class StringArrayName extends AbstractName {
     public getNoComponents(): number {
         const length: number = this.components.length
 
-        MethodFailedException.assert(length >= 0);
+        InvalidStateException.assert(length >= 0);
 
         return length;
     }
@@ -55,7 +60,7 @@ export class StringArrayName extends AbstractName {
         this.components.splice(i,0, c);
 
         const newLength: number = this.getNoComponents();
-        const newComponent: string = this.getComponent(newLength - 1);
+        const newComponent: string = this.getComponent(i);
 
         InvalidStateException.assert(this.isValidComponent(newComponent));
         MethodFailedException.assert(newLength === oldLength + 1 && newComponent === c);
@@ -77,10 +82,13 @@ export class StringArrayName extends AbstractName {
 
     public remove(i: number): void {
         IllegalArgumentException.assert(this.isValidIndex(i))
-        const length: number = this.getNoComponents();
+
+        const oldLength: number = this.getNoComponents();
 
         this.components.splice(i,1);
 
-        MethodFailedException.assert(this.getNoComponents() === length - 1);
+        const newLength: number = this.getNoComponents();
+
+        MethodFailedException.assert(newLength === oldLength - 1);
     }
 }

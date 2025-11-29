@@ -16,15 +16,10 @@ export class StringName extends AbstractName {
 
         IllegalArgumentException.assert(this.isValidName(source));
 
-        //const sourceArray: string[] = this.asStringArray(source, this.delimiter);
         const sourceLength: number = this.asStringArray(source).length;
 
-        // sourceArray.forEach(component =>
-        //     this.append(component)
-        // )
-
-        this.name = source; //stringArray.join(DEFAULT_DELIMITER);
-        this.noComponents = sourceLength; //sourceArray.length;
+        this.name = source;
+        this.noComponents = sourceLength;
 
         InvalidStateException.assert(this.isValidName(this.name) && this.noComponents >= 0);
         MethodFailedException.assert(this.name === source && this.noComponents === sourceLength);

@@ -57,6 +57,9 @@ export class Node {
      * @param bn basename of node being searched for
      */
     public findNodes(bn: string): Set<Node> {
+        const matchingNodes: Set<Node> = new Set<Node>();
+
+        this.get
         throw new Error("needs implementation or deletion");
     }
 

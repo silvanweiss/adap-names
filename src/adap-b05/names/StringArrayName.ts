@@ -1,69 +1,94 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
+import {MethodFailedException} from "../../adap-b04/common/MethodFailedException";
+import {InvalidStateException} from "../../adap-b04/common/InvalidStateException";
+import {IllegalArgumentException} from "../../adap-b04/common/IllegalArgumentException";
 
 export class StringArrayName extends AbstractName {
 
     protected components: string[] = [];
 
     constructor(source: string[], delimiter?: string) {
-        super();
-        throw new Error("needs implementation or deletion");
+        super(delimiter);
+
+        source.forEach(component =>
+            this.append(component)
+        )
+
+        MethodFailedException.assert(this.components === source);
     }
 
     public clone(): Name {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public asDataString(): string {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public isEqual(other: Name): boolean {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public getHashCode(): number {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public isEmpty(): boolean {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public getDelimiterCharacter(): string {
-        throw new Error("needs implementation or deletion");
+        return super.clone();
     }
 
     public getNoComponents(): number {
-        throw new Error("needs implementation or deletion");
+        const length: number = this.components.length
+
+        InvalidStateException.assert(length >= 0);
+
+        return length;
     }
 
     public getComponent(i: number): string {
-        throw new Error("needs implementation or deletion");
+        IllegalArgumentException.assert(this.isValidIndex(i));
+
+        const component: string = this.components[i];
+
+        InvalidStateException.assert(this.isValidComponent(component));
+
+        return component;
     }
 
     public setComponent(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
+        IllegalArgumentException.assert(this.isValidIndex(i) && this.isValidComponent(c));
+
+        this.components[i] = c;
+
+        const newComponent: string = this.getComponent(i);
+
+        InvalidStateException.assert(this.isValidComponent(newComponent));
+        MethodFailedException.assert(newComponent === c);
     }
 
     public insert(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
+        IllegalArgumentException.assert(this.isValidIndex(i) && this.isValidComponent(c));
+
+        const oldLength: number = this.getNoComponents();
+
+        this.components.splice(i,0, c);
+
+        const newLength: number = this.getNoComponents();
+        const newComponent: string = this.getComponent(i);
+
+        InvalidStateException.assert(this.isValidComponent(newComponent));
+        MethodFailedException.assert(newLength === oldLength + 1 && newComponent === c);
     }
 
     public append(c: string) {
-        throw new Error("needs implementation or deletion");
+        IllegalArgumentException.assert(this.isValidComponent(c))
+
+        const oldLength: number = this.getNoComponents();
+
+        this.components.push(c);
+
+        const newLength: number = this.getNoComponents();
+        const newComponent: string = this.getComponent(newLength - 1);
+
+        InvalidStateException.assert(this.isValidComponent(newComponent));
+        MethodFailedException.assert(newLength === oldLength + 1 && newComponent === c);
     }
 
     public remove(i: number) {
-        throw new Error("needs implementation or deletion");
-    }
+        IllegalArgumentException.assert(this.isValidIndex(i))
 
-    public concat(other: Name): void {
-        throw new Error("needs implementation or deletion");
+        const oldLength: number = this.getNoComponents();
+
+        this.components.splice(i,1);
+
+        const newLength: number = this.getNoComponents();
+
+        MethodFailedException.assert(newLength === oldLength - 1);
     }
 }

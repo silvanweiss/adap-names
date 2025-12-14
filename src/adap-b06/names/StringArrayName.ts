@@ -20,7 +20,7 @@ export class StringArrayName extends AbstractName {
     }
 
     public clone(): Name {
-        return super.clone();
+        return new StringArrayName(this.components, super.getDelimiterCharacter());
     }
 
     public getNoComponents(): number {
@@ -41,54 +41,78 @@ export class StringArrayName extends AbstractName {
         return component;
     }
 
-    public setComponent(i: number, c: string) {
+    public setComponent(i: number, c: string): StringArrayName {
         IllegalArgumentException.assert(this.isValidIndex(i) && this.isValidComponent(c));
 
-        this.components[i] = c;
+        const newComponents: string[] = this.components;
 
-        const newComponent: string = this.getComponent(i);
+        newComponents[i] = c;
 
-        InvalidStateException.assert(this.isValidComponent(newComponent));
+        const newName: StringArrayName = new StringArrayName(newComponents, this.getDelimiterCharacter());
+
+        const newComponent: string = newName.getComponent(i);
+
+        InvalidStateException.assert(newName.isValidComponent(newComponent));
         MethodFailedException.assert(newComponent === c);
+
+        return newName;
     }
 
-    public insert(i: number, c: string) {
+    public insert(i: number, c: string): StringArrayName {
         IllegalArgumentException.assert(this.isValidIndex(i) && this.isValidComponent(c));
 
         const oldLength: number = this.getNoComponents();
 
-        this.components.splice(i,0, c);
+        const newComponents: string[] = this.components;
 
-        const newLength: number = this.getNoComponents();
-        const newComponent: string = this.getComponent(i);
+        newComponents.splice(i,0, c);
 
-        InvalidStateException.assert(this.isValidComponent(newComponent));
+        const newName: StringArrayName = new StringArrayName(newComponents, this.getDelimiterCharacter());
+
+        const newLength: number = newName.getNoComponents();
+        const newComponent: string = newName.getComponent(i);
+
+        InvalidStateException.assert(newName.isValidComponent(newComponent));
         MethodFailedException.assert(newLength === oldLength + 1 && newComponent === c);
+
+        return newName;
     }
 
-    public append(c: string) {
+    public append(c: string): StringArrayName {
         IllegalArgumentException.assert(this.isValidComponent(c))
 
         const oldLength: number = this.getNoComponents();
 
-        this.components.push(c);
+        const newComponents: string[] = this.components;
 
-        const newLength: number = this.getNoComponents();
-        const newComponent: string = this.getComponent(newLength - 1);
+        newComponents.push(c);
 
-        InvalidStateException.assert(this.isValidComponent(newComponent));
+        const newName: StringArrayName = new StringArrayName(newComponents, this.getDelimiterCharacter());
+
+        const newLength: number = newName.getNoComponents();
+        const newComponent: string = newName.getComponent(newLength - 1);
+
+        InvalidStateException.assert(newName.isValidComponent(newComponent));
         MethodFailedException.assert(newLength === oldLength + 1 && newComponent === c);
+
+        return newName;
     }
 
-    public remove(i: number) {
+    public remove(i: number): StringArrayName {
         IllegalArgumentException.assert(this.isValidIndex(i))
 
         const oldLength: number = this.getNoComponents();
 
-        this.components.splice(i,1);
+        const newComponents: string[] = this.components;
 
-        const newLength: number = this.getNoComponents();
+        newComponents.splice(i,1);
+
+        const newName: StringArrayName = new StringArrayName(newComponents, this.getDelimiterCharacter());
+
+        const newLength: number = newName.getNoComponents();
 
         MethodFailedException.assert(newLength === oldLength - 1);
+
+        return newName;
     }
 }

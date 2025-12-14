@@ -92,26 +92,29 @@ export abstract class AbstractName implements Name {
     }
 
     abstract getNoComponents(): number;
-
     abstract getComponent(i: number): string;
-    abstract setComponent(i: number, c: string): void;
 
-    abstract insert(i: number, c: string): void;
-    abstract append(c: string): void;
-    abstract remove(i: number): void;
+    abstract setComponent(i: number, c: string): Name;
+    abstract insert(i: number, c: string): Name;
+    abstract append(c: string): Name;
+    abstract remove(i: number): Name;
 
-    public concat(other: Name): void {
+    public concat(other: Name): Name {
         IllegalArgumentException.assert(this.isValidName(other.asDataString()));
 
         const thisLength: number = this.getNoComponents();
         const otherLength: number = other.getNoComponents();
 
+        const newName: Name = this.clone();
+
         for (let i: number = 0; i < otherLength; i++) {
-            this.append(other.getComponent(i));
+            newName.append(other.getComponent(i));
         }
 
-        InvalidStateException.assert(this.isValidName(this.asDataString()));
-        MethodFailedException.assert(this.getNoComponents() === thisLength + otherLength);
+        InvalidStateException.assert(this.isValidName(newName.asDataString()));
+        MethodFailedException.assert(newName.getNoComponents() === thisLength + otherLength);
+
+        return newName;
     }
 
     protected isValidIndex(i: number): boolean {

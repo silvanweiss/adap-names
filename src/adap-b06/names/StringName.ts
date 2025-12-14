@@ -26,7 +26,10 @@ export class StringName extends AbstractName {
     }
 
     public clone(): Name {
-        return new StringName(this.name, super.getDelimiterCharacter());
+        const newName = new StringName(this.name, super.getDelimiterCharacter());
+        MethodFailedException.assert(this.name === newName.name &&
+            this.getDelimiterCharacter() === newName.getDelimiterCharacter());
+        return newName;
     }
 
     private asStringArray(other: string): string[] {

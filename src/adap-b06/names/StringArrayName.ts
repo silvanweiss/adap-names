@@ -20,7 +20,10 @@ export class StringArrayName extends AbstractName {
     }
 
     public clone(): Name {
-        return new StringArrayName(this.components, super.getDelimiterCharacter());
+        const newName = new StringArrayName(this.components, super.getDelimiterCharacter());
+        MethodFailedException.assert(this.components === newName.components &&
+            this.getDelimiterCharacter() === newName.getDelimiterCharacter());
+        return newName;
     }
 
     public getNoComponents(): number {

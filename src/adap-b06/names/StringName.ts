@@ -1,10 +1,10 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
-import {IllegalArgumentException} from "../../adap-b04/common/IllegalArgumentException";
-import {InvalidStateException} from "../../adap-b04/common/InvalidStateException";
-import {MethodFailedException} from "../../adap-b04/common/MethodFailedException";
-import {StringArrayName} from "../../adap-b02/names/StringArrayName";
+import {IllegalArgumentException} from "../common/IllegalArgumentException";
+import {InvalidStateException} from "../common/InvalidStateException";
+import {MethodFailedException} from "../common/MethodFailedException";
+import {StringArrayName} from "./StringArrayName";
 
 export class StringName extends AbstractName {
 
@@ -26,9 +26,8 @@ export class StringName extends AbstractName {
     }
 
     public clone(): Name {
-        const newName = new StringName(this.name, super.getDelimiterCharacter());
-        MethodFailedException.assert(this.name === newName.name &&
-            this.getDelimiterCharacter() === newName.getDelimiterCharacter());
+        const newName = new StringName(this.name, this.delimiter);
+        MethodFailedException.assert(this.isEqual(newName));
         return newName;
     }
 
@@ -96,7 +95,7 @@ export class StringName extends AbstractName {
     public setComponent(i: number, c: string) {
         IllegalArgumentException.assert(this.isValidIndex(i) && this.isValidComponent(c));
 
-        const tempName: StringArrayName = new StringArrayName(this.asStringArray(this.name));
+        const tempName: StringArrayName = new StringArrayName(this.asStringArray(this.name), this.delimiter);
         tempName.setComponent(i, c);
 
         const newName: StringName = new StringName(tempName.asDataString(), this.delimiter);
@@ -116,12 +115,12 @@ export class StringName extends AbstractName {
 
         const oldLength: number = this.noComponents;
 
-        const tempName: StringArrayName = new StringArrayName(this.asStringArray(this.name));
-        tempName.insert(i, c);
+        let tempName: StringArrayName = new StringArrayName(this.asStringArray(this.name), this.delimiter);
+        tempName = tempName.insert(i, c);
 
         const newName: StringName = new StringName(tempName.asDataString(), this.delimiter);
 
-        newName.incrementNoComponents();
+        //newName.incrementNoComponents();
 
         InvalidStateException.assert(newName.isValidName(newName.name));
 
@@ -130,6 +129,7 @@ export class StringName extends AbstractName {
         InvalidStateException.assert(newName.isValidComponent(newComponent));
 
         const newLength: number = newName.noComponents;
+
         MethodFailedException.assert(newLength === oldLength + 1 && newComponent === c);
 
         return newName;
@@ -144,7 +144,7 @@ export class StringName extends AbstractName {
 
         const newName = new StringName(newNameString, this.delimiter);
 
-        newName.incrementNoComponents();
+        // newName.incrementNoComponents();
 
         InvalidStateException.assert(newName.isValidName(newName.name));
 
@@ -163,12 +163,12 @@ export class StringName extends AbstractName {
 
         const oldLength: number = this.noComponents;
 
-        const tempName: StringArrayName = new StringArrayName(this.asStringArray(this.name));
-        tempName.remove(i);
+        let tempName: StringArrayName = new StringArrayName(this.asStringArray(this.name), this.delimiter);
+        tempName = tempName.remove(i);
 
         const newName = new StringName(tempName.asDataString(), this.delimiter);
 
-        newName.decrementNoComponents();
+        // newName.decrementNoComponents();
 
         InvalidStateException.assert(newName.isValidName(newName.name));
 
@@ -179,29 +179,29 @@ export class StringName extends AbstractName {
         return newName;
     }
 
-    private incrementNoComponents(): void {
-        InvalidStateException.assert(this.noComponents >= 0);
-
-        const oldLength: number = this.noComponents;
-
-        this.noComponents += 1;
-
-        const newLength: number = this.noComponents;
-
-        InvalidStateException.assert(newLength >= 0);
-        MethodFailedException.assert(newLength === oldLength + 1);
-    }
-
-    private decrementNoComponents(): void {
-        InvalidStateException.assert(this.noComponents >= 0);
-
-        const oldLength: number = this.noComponents;
-
-        this.noComponents -= 1;
-
-        const newLength: number = this.noComponents;
-
-        InvalidStateException.assert(newLength >= 0);
-        MethodFailedException.assert(newLength === oldLength - 1);
-    }
+    // private incrementNoComponents(): void {
+    //     InvalidStateException.assert(this.noComponents >= 0);
+    //
+    //     const oldLength: number = this.noComponents;
+    //
+    //     this.noComponents += 1;
+    //
+    //     const newLength: number = this.noComponents;
+    //
+    //     InvalidStateException.assert(newLength >= 0);
+    //     MethodFailedException.assert(newLength === oldLength + 1);
+    // }
+    //
+    // private decrementNoComponents(): void {
+    //     InvalidStateException.assert(this.noComponents >= 0);
+    //
+    //     const oldLength: number = this.noComponents;
+    //
+    //     this.noComponents -= 1;
+    //
+    //     const newLength: number = this.noComponents;
+    //
+    //     InvalidStateException.assert(newLength >= 0);
+    //     MethodFailedException.assert(newLength === oldLength - 1);
+    // }
 }

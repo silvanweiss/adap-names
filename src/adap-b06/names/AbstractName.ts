@@ -1,8 +1,8 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
-import {IllegalArgumentException} from "../../adap-b04/common/IllegalArgumentException";
-import {MethodFailedException} from "../../adap-b04/common/MethodFailedException";
-import {InvalidStateException} from "../../adap-b04/common/InvalidStateException";
+import {IllegalArgumentException} from "../common/IllegalArgumentException";
+import {MethodFailedException} from "../common/MethodFailedException";
+import {InvalidStateException} from "../common/InvalidStateException";
 
 export abstract class AbstractName implements Name {
 
@@ -28,7 +28,7 @@ export abstract class AbstractName implements Name {
         const length: number = this.getNoComponents();
 
         for (let i: number = 0; i < length - 1; i++) {
-            name += this.asUnmaskedComponent(this.getComponent(i)) + this.delimiter;
+            name += this.asUnmaskedComponent(this.getComponent(i)) + delimiter;
         }
 
         name += this.asUnmaskedComponent(this.getComponent(length - 1));
@@ -39,11 +39,11 @@ export abstract class AbstractName implements Name {
     protected asUnmaskedComponent(component: string): string {
         IllegalArgumentException.assert(this.isValidComponent(component));
 
-        const maskedDelimiter: string = ESCAPE_CHARACTER + this.getDelimiterCharacter();
+        const maskedDelimiter: string = ESCAPE_CHARACTER + this.delimiter;
         const maskedEscapeCharacter: string = ESCAPE_CHARACTER + ESCAPE_CHARACTER;
 
         return component
-            .replaceAll(maskedDelimiter, this.getDelimiterCharacter)
+            .replaceAll(maskedDelimiter, this.delimiter)
             .replaceAll(maskedEscapeCharacter, ESCAPE_CHARACTER);
     }
 
@@ -66,7 +66,8 @@ export abstract class AbstractName implements Name {
     }
 
     public isEqual(other: Name): boolean {
-        return this.getHashCode() === other.getHashCode();
+        return this.getHashCode() === other.getHashCode() &&
+            this.delimiter === other.getDelimiterCharacter();
     }
 
     public getHashCode(): number {
@@ -105,10 +106,10 @@ export abstract class AbstractName implements Name {
         const thisLength: number = this.getNoComponents();
         const otherLength: number = other.getNoComponents();
 
-        const newName: Name = this.clone();
+        let newName: Name = this.clone();
 
         for (let i: number = 0; i < otherLength; i++) {
-            newName.append(other.getComponent(i));
+            newName = newName.append(other.getComponent(i));
         }
 
         InvalidStateException.assert(this.isValidName(newName.asDataString()));
@@ -122,14 +123,14 @@ export abstract class AbstractName implements Name {
     }
 
     protected isValidDelimiter(delimiter: string): boolean {
-        return delimiter.length === 1;
+        return delimiter !== undefined && delimiter.length === 1;
     }
 
     protected isValidComponent(c: string): boolean {
         // if delimiter is ESCAPE_CHARACTER you cannot detect faulty masking
-        if (this.delimiter === ESCAPE_CHARACTER) {
-            return true;
-        }
+        if (c === undefined) { return false; }
+
+        if (this.delimiter === ESCAPE_CHARACTER) { return true; }
 
         let escapedCounter: number = 0;
 
@@ -168,9 +169,7 @@ export abstract class AbstractName implements Name {
 
     protected isValidName(n: string): boolean {
         // if delimiter is ESCAPE_CHARACTER you cannot detect faulty masking
-        if (this.delimiter === ESCAPE_CHARACTER) {
-            return true;
-        }
+        if (this.delimiter === ESCAPE_CHARACTER) { return true; }
 
         let escapedCounter: number = 0;
 
@@ -204,5 +203,4 @@ export abstract class AbstractName implements Name {
 
         return true
     }
-
 }

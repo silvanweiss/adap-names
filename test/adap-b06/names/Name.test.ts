@@ -80,42 +80,47 @@ describe("Escape character extravaganza", () => {
   });
 });
 
-// describe("Custom: Extensive masking test", () => {
-//     it("test masking and unmasking with additional escape characters", () => {
-//         let n: Name = new StringName("oss\\\\.cs\\\\\\#fau\\\\#de", '#');
-//         expect(n.getNoComponents()).toBe(2);
-//         expect(n.asString("*")).toBe("oss\\.cs\\#fau\\*de");
-//         n.append("people");
-//         expect(n.asString("*")).toBe("oss\\.cs\\#fau\\*de*people");
-//         expect(n.asDataString()).toBe("oss\\\\\\.cs\\\\#fau\\\\.de.people");
-//     });
-//
-//     it("Custom: test escape character as delimiter", () => {
-//         let n: Name = new StringName("oss\\\\.cs\\.fau.de", '\\');
-//         expect(n.getNoComponents()).toBe(4);
-//         expect(n.asString("#")).toBe("oss##.cs#.fau.de");
-//         expect(n.asString(".")).toBe("oss...cs..fau.de");
-//         expect(n.asDataString()).toBe("oss..\\.cs.\\.fau\\.de");
-//         n.append("people");
-//         expect(n.asString("#")).toBe("oss##.cs#.fau.de#people");
-//     });
-// });
-//
-// describe("Custom: Non default delimiter masking", () => {
-//     it("test handling of non default delimiters, masked and unmasked", () => {
-//         // Original name string = "oss.cs.fau.de"
-//         let n: Name = new StringName("oss.cs.fau\\#de", '#');
-//         expect(n.asString()).toBe("oss.cs.fau#de");
-//         n.append("people");
-//         expect(n.asString()).toBe("oss.cs.fau#de#people");
-//     });
-//
-//     it("test handling of non default delimiters, masked and unmasked and unmasked default delimiter", () => {
-//         // Original name string = "oss.cs.fau.de"
-//         let n: Name = new StringName("oss.cs.fau\\#de", '#');
-//         expect(n.asDataString()).toBe("oss\\.cs\\.fau#de");
-//         expect(n.asString()).toBe("oss.cs.fau#de");
-//         n.append("people");
-//         expect(n.asString(".")).toBe("oss.cs.fau#de.people");
-//     });
-// });
+describe("Custom: Extensive masking test", () => {
+    it("test masking and unmasking with additional escape characters", () => {
+        let n: Name = new StringName("oss\\\\.cs\\\\\\#fau\\\\#de", '#');
+        expect(n.getNoComponents()).toBe(2);
+        expect(n.asString("*")).toBe("oss\\.cs\\#fau\\*de");
+        const n1: Name = n.append("people");
+        expect(n.asString("*")).toBe("oss\\.cs\\#fau\\*de");
+        expect(n.asDataString()).toBe("oss\\\\.cs\\\\\\#fau\\\\#de");
+        expect(n1.asString("*")).toBe("oss\\.cs\\#fau\\*de*people");
+        expect(n1.asDataString()).toBe("oss\\\\.cs\\\\\\#fau\\\\#de#people");
+    });
+
+    it("Custom: test escape character as delimiter", () => {
+        let n: Name = new StringName("oss\\\\.cs\\.fau.de", '\\');
+        expect(n.getNoComponents()).toBe(4);
+        expect(n.asString("#")).toBe("oss##.cs#.fau.de");
+        expect(n.asString(".")).toBe("oss...cs..fau.de");
+        expect(n.asDataString()).toBe("oss\\\\.cs\\.fau.de");
+        const n1: Name = n.append("people");
+        expect(n.asString("#")).toBe("oss##.cs#.fau.de");
+        expect(n1.asString("#")).toBe("oss##.cs#.fau.de#people");
+    });
+});
+
+describe("Custom: Non default delimiter masking", () => {
+    it("test handling of non default delimiters, masked and unmasked", () => {
+        // Original name string = "oss.cs.fau.de"
+        let n: Name = new StringName("oss.cs.fau\\#de", '#');
+        expect(n.asString()).toBe("oss.cs.fau#de");
+        const n1: Name = n.append("people");
+        expect(n.asString()).toBe("oss.cs.fau#de");
+        expect(n1.asString()).toBe("oss.cs.fau#de#people");
+    });
+
+    it("test handling of non default delimiters, masked and unmasked and unmasked default delimiter", () => {
+        // Original name string = "oss.cs.fau.de"
+        let n: Name = new StringName("oss.cs.fau\\#de", '#');
+        expect(n.asDataString()).toBe("oss.cs.fau\\#de");
+        expect(n.asString()).toBe("oss.cs.fau#de");
+        const n1: Name = n.append("people");
+        expect(n.asString(".")).toBe("oss.cs.fau#de");
+        expect(n1.asString(".")).toBe("oss.cs.fau#de.people");
+    });
+});
